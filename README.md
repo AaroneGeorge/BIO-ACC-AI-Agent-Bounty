@@ -1,1 +1,1 @@
-# BIO-ACC-AI-Agent-Bounty
+# BIO/ACC AI Agent Bounty - DeSci Mania at Zo
