@@ -128,7 +128,7 @@ For detailed instructions on using the start script, including character managem
 
 1. Open `packages/core/src/defaultCharacter.ts` to modify the default character. Uncomment and edit.
 
-2. To load custom characters:
+2. To load custom characters:ch
     - Use `pnpm start --characters="path/to/your/character.json"`
     - Multiple character files can be loaded simultaneously
 3. Connect with X (Twitter)
