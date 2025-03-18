@@ -7,6 +7,10 @@ import { Send, Loader } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import ASCIIText from "@/components/ASCIIText";
+import ChatMessage from "@/components/chat-message";
+import TypingIndicator from "@/components/typing-indicator";
+import { v4 as uuidv4 } from 'uuid';
+
 export default function Home() {
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>(
     [
@@ -19,26 +23,67 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [userId, setUserId] = useState<string>("");
 
-  const handleSend = () => {
-    if (input.trim() === "") return;
+  useEffect(() => {
+    // Generate a random session ID for the user if not already set
+    const storedUserId = localStorage.getItem("bioaccUserId");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      const newUserId = uuidv4();
+      localStorage.setItem("bioaccUserId", newUserId);
+      setUserId(newUserId);
+    }
+  }, []);
+
+  const handleSend = async () => {
+    if (input.trim() === "" || !userId) return;
 
     // Add user message
     setMessages((prev) => [...prev, { text: input, isUser: true }]);
+    const currentInput = input; // Store the current input for the API call
     setInput("");
     setIsLoading(true);
 
-    // Simulate response
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL || "", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: currentInput,
+          userId: userId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get response from server");
+      }
+
+      const data = await response.json();
+      
+      // Add agent response from the backend
+      if (data && data.length > 0) {
+        const agentResponse = data[0];
+        setMessages((prev) => [
+          ...prev,
+          { text: agentResponse.text, isUser: false },
+        ]);
+      }
+    } catch (error) {
+      console.error("Error communicating with the agent:", error);
       setMessages((prev) => [
         ...prev,
         {
-          text: "This is a simulated response from the $BIO/ACC agent. In a real implementation, this would connect to an actual backend service.",
+          text: "Sorry, I encountered an error while processing your request. Please try again later.",
           isUser: false,
         },
       ]);
-    }, 2000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Auto-scroll to bottom when messages change
@@ -155,69 +200,13 @@ export default function Home() {
         <div className="max-w-3xl mx-auto space-y-4">
           <AnimatePresence>
             {messages.map((message, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className={`flex ${
-                  message.isUser ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
-                    message.isUser
-                      ? "bg-green-900/30 text-green-400 border border-green-700"
-                      : "bg-black text-green-400 border border-green-900"
-                  }`}
-                >
-                  <p className="text-sm md:text-base">{message.text}</p>
-                </div>
-              </motion.div>
+              <ChatMessage 
+                key={index} 
+                message={message.text} 
+                isUser={message.isUser} 
+              />
             ))}
-            {isLoading && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex justify-start"
-              >
-                <div className="max-w-[80%] rounded-lg p-3 bg-black text-green-400 border border-green-900">
-                  <div className="flex items-center space-x-2">
-                    <div className="flex space-x-1">
-                      <motion.div
-                        animate={{ opacity: [0.4, 1, 0.4] }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Number.POSITIVE_INFINITY,
-                        }}
-                        className="w-2 h-2 rounded-full bg-green-400"
-                      />
-                      <motion.div
-                        animate={{ opacity: [0.4, 1, 0.4] }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Number.POSITIVE_INFINITY,
-                          delay: 0.2,
-                        }}
-                        className="w-2 h-2 rounded-full bg-green-400"
-                      />
-                      <motion.div
-                        animate={{ opacity: [0.4, 1, 0.4] }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Number.POSITIVE_INFINITY,
-                          delay: 0.4,
-                        }}
-                        className="w-2 h-2 rounded-full bg-green-400"
-                      />
-                    </div>
-                    <span className="text-xs text-green-500">
-                      $BIO/ACC is thinking...
-                    </span>
-                  </div>
-                </div>
-              </motion.div>
-            )}
+            {isLoading && <TypingIndicator />}
           </AnimatePresence>
           <div ref={messagesEndRef} />
         </div>
