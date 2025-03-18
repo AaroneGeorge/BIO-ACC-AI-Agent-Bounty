@@ -89,13 +89,23 @@ body {
 .message-content a {
   color: rgb(192, 132, 252); /* purple-400 */
   text-decoration: underline;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, filter 0.2s ease;
   word-break: break-all;
+  position: relative;
 }
 
 .message-content a:hover {
   color: rgb(216, 180, 254); /* purple-300 */
   text-shadow: 0 0 5px rgba(192, 132, 252, 0.5);
+}
+
+.message-content a::after {
+  content: "↗";
+  position: relative;
+  font-size: 0.7em;
+  top: -0.5em;
+  margin-left: 2px;
+  opacity: 0.8;
 }
 
 .message-content ul, 
@@ -106,9 +116,66 @@ body {
 
 .message-content li {
   margin: 0.25rem 0;
+  line-height: 1.5;
 }
 
 .message-content p {
   margin: 0.5rem 0;
+  line-height: 1.5;
+}
+
+.message-content h1,
+.message-content h2,
+.message-content h3 {
+  color: rgb(74, 222, 128); /* green-400 */
+  font-weight: bold;
+  margin: 0.75rem 0;
+  line-height: 1.2;
+}
+
+.message-content h1 {
+  font-size: 1.5rem;
+  text-shadow: 0 0 5px rgba(74, 222, 128, 0.3);
+}
+
+.message-content h2 {
+  font-size: 1.25rem;
+}
+
+.message-content h3 {
+  font-size: 1.125rem;
+}
+
+.message-content pre {
+  border-radius: 0.25rem;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.message-content pre:hover {
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+.message-content pre:hover::after {
+  content: "Click to copy";
+  position: absolute;
+  top: 0.25rem;
+  right: 0.5rem;
+  font-size: 0.7rem;
+  color: rgba(74, 222, 128, 0.7);
+  pointer-events: none;
+}
+
+.message-content code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.85em;
+}
+
+.message-content pre code {
+  display: block;
+  padding: 0.25em;
+  line-height: 1.5;
+  tab-size: 2;
 }
 
