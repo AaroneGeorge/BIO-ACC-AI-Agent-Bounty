@@ -113,9 +113,10 @@ class AsciiFilter {
     this.pre.style.left = '50%';
     this.pre.style.top = '50%';
     this.pre.style.transform = 'translate(-50%, -50%)';
-    this.pre.style.zIndex = '9';
+    this.pre.style.zIndex = '0';
     this.pre.style.backgroundAttachment = 'fixed';
     this.pre.style.mixBlendMode = 'difference';
+    this.pre.style.pointerEvents = 'none';
   }
 
   render(scene, camera) {
@@ -446,7 +447,10 @@ export default function ASCIIText({
       style={{
         position: 'absolute',
         width: '100%',
-        height: '100%'
+        height: '100%',
+        pointerEvents: 'none',
+        zIndex: '0',
+        opacity: '0.5',
       }}
     >
       {/* Inline style or move to global CSS */}
@@ -471,6 +475,7 @@ export default function ASCIIText({
           image-rendering: optimize-contrast;
           image-rendering: crisp-edges;
           image-rendering: pixelated;
+          pointer-events: none;
         }
 
         pre {
@@ -486,8 +491,9 @@ export default function ASCIIText({
           background-attachment: fixed;
           -webkit-text-fill-color: transparent;
           -webkit-background-clip: text;
-          z-index: 9;
+          z-index: 0;
           mix-blend-mode: difference;
+          pointer-events: none;
         }
       `}</style>
     </div>

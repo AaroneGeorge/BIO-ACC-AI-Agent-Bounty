@@ -78,3 +78,37 @@ body {
   animation: pulse 2s infinite;
 }
 
+/* Message content styling */
+.message-content {
+  width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  overflow: hidden;
+}
+
+.message-content a {
+  color: rgb(192, 132, 252); /* purple-400 */
+  text-decoration: underline;
+  transition: color 0.2s ease;
+  word-break: break-all;
+}
+
+.message-content a:hover {
+  color: rgb(216, 180, 254); /* purple-300 */
+  text-shadow: 0 0 5px rgba(192, 132, 252, 0.5);
+}
+
+.message-content ul, 
+.message-content ol {
+  margin: 0.5rem 0;
+  padding-left: 1.25rem;
+}
+
+.message-content li {
+  margin: 0.25rem 0;
+}
+
+.message-content p {
+  margin: 0.5rem 0;
+}
+

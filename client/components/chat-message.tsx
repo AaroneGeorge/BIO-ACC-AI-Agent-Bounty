@@ -24,34 +24,78 @@ export default function ChatMessage({ message, isUser }: ChatMessageProps) {
   
   // Function to format lists
   const formatLists = (text: string) => {
-    // Format bullet points (lines starting with - or *)
-    let formattedText = text.replace(/^[-*•] (.+)$/gm, '<li class="ml-5">$1</li>')
+    const lines = text.split('\n')
+    let inBulletList = false
+    let inNumberedList = false
+    let formattedLines = []
     
-    // Format numbered lists (lines starting with 1., 2., etc.)
-    formattedText = formattedText.replace(/^\d+\.\s(.+)$/gm, '<li class="ml-5 list-decimal">$1</li>')
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim()
+      
+      // Check if line is a bullet point
+      if (line.match(/^[-*•] /)) {
+        // Start a new list if not in one
+        if (!inBulletList) {
+          inBulletList = true
+          formattedLines.push('<ul class="my-2 list-disc pl-5">')
+        }
+        
+        // Add list item
+        formattedLines.push(`<li class="my-1">${line.substring(2)}</li>`)
+      } 
+      // Check if line is a numbered list item
+      else if (line.match(/^\d+\.\s/)) {
+        // Start a new list if not in one
+        if (!inNumberedList) {
+          inNumberedList = true
+          formattedLines.push('<ol class="my-2 list-decimal pl-5">')
+        }
+        
+        // Add list item
+        const content = line.substring(line.indexOf('.') + 2)
+        formattedLines.push(`<li class="my-1">${content}</li>`)
+      }
+      // Not a list item
+      else {
+        // Close any open lists
+        if (inBulletList) {
+          inBulletList = false
+          formattedLines.push('</ul>')
+        }
+        if (inNumberedList) {
+          inNumberedList = false
+          formattedLines.push('</ol>')
+        }
+        
+        // Handle empty lines
+        if (line === '') {
+          formattedLines.push('<div class="my-2"></div>')
+        } else {
+          formattedLines.push(`<p class="my-2">${line}</p>`)
+        }
+      }
+    }
     
-    // Wrap consecutive list items in ul/ol tags
-    formattedText = formattedText.replace(/<li class="ml-5">(.+?)<\/li>(\s*<li class="ml-5">(.+?)<\/li>)+/gs, '<ul class="my-2 list-disc">$&</ul>')
-    formattedText = formattedText.replace(/<li class="ml-5 list-decimal">(.+?)<\/li>(\s*<li class="ml-5 list-decimal">(.+?)<\/li>)+/gs, '<ol class="my-2 list-decimal">$&</ol>')
+    // Close any open lists at the end
+    if (inBulletList) {
+      formattedLines.push('</ul>')
+    }
+    if (inNumberedList) {
+      formattedLines.push('</ol>')
+    }
     
-    return formattedText
+    return formattedLines.join('')
   }
   
   // Process text to format it
   const formatText = (text: string) => {
     if (isUser) return text
     
-    // Convert newlines to <br> tags
-    let formattedText = text.replace(/\n/g, '<br>')
+    // Format links first
+    let formattedText = formatTextWithLinks(text)
     
-    // Format links
-    formattedText = formatTextWithLinks(formattedText)
-    
-    // Format lists
+    // Format lists with our custom function
     formattedText = formatLists(formattedText)
-    
-    // Add spacing between paragraphs
-    formattedText = formattedText.replace(/(<br>){2,}/g, '<div class="my-2"></div>')
     
     return formattedText
   }
@@ -73,17 +117,21 @@ export default function ChatMessage({ message, isUser }: ChatMessageProps) {
       <div
         className={`max-w-[80%] rounded-lg p-3 ${
           isUser
-            ? "bg-green-900/30 text-green-400 border border-green-700"
-            : "bg-black text-green-400 border border-green-900"
+            ? "bg-green-900/40 text-green-400 border border-green-700"
+            : "bg-black/70 text-green-400 border border-green-900"
         }`}
-        style={{ boxShadow: "0 0 10px rgba(0, 255, 0, 0.1)" }}
+        style={{ 
+          boxShadow: isUser 
+            ? "0 0 10px rgba(0, 255, 0, 0.2)" 
+            : "0 0 15px rgba(0, 0, 0, 0.8), 0 0 5px rgba(0, 255, 0, 0.1)"
+        }}
       >
         {isUser ? (
           <p className="text-sm md:text-base break-words">{message}</p>
         ) : (
           <div 
             ref={messageRef}
-            className="text-sm md:text-base break-words whitespace-pre-wrap message-content"
+            className="text-sm md:text-base break-words message-content"
           />
         )}
       </div>
