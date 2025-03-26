@@ -66,7 +66,7 @@ export default function ChatMessage({ message, isUser }: ChatMessageProps) {
     const lines = text.split('\n')
     let inBulletList = false
     let inNumberedList = false
-    let formattedLines = []
+    const formattedLines = []
     
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim()
@@ -176,7 +176,7 @@ export default function ChatMessage({ message, isUser }: ChatMessageProps) {
         })
       })
     }
-  }, [message, isUser])
+  }, [message, isUser, formatText])
 
   return (
     <motion.div
